@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "B4B01847-6535-4245-A7C1-38898D8347EE"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "4B1C9A57-85EC-43AD-9330-AFF0FC09D115"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../libnfc-1.8.0/libnfc/drivers/pn53x_usb.c"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "202"
+            endingLineNumber = "202"
+            landmarkName = "pn533_fix_usbdesc(pnd)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  uuid = "4B1C9A57-85EC-43AD-9330-AFF0FC09D115 - bc259dcf5a7c08f9"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "pn53x_usb_init"
+                  moduleName = "SCARD"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/miyako/Downloads/libnfc-1.8.0/libnfc/drivers/pn53x_usb.c"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "214"
+                  endingLineNumber = "214"
+                  offsetFromSymbolStart = "378">
+               </Location>
+               <Location
+                  uuid = "4B1C9A57-85EC-43AD-9330-AFF0FC09D115 - c553fac576860c9a"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "pn53x_usb_close"
+                  moduleName = "SCARD"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/miyako/Downloads/libnfc-1.8.0/libnfc/drivers/pn53x_usb.c"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "214"
+                  endingLineNumber = "214"
+                  offsetFromSymbolStart = "129">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "68ACD0D8-688F-467D-B35F-07B03A01B2A5"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../libnfc-1.8.0/libnfc/drivers/pn53x_usb.c"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "221"
+            endingLineNumber = "221"
+            landmarkName = "pn533_fix_usbdesc(pnd)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  uuid = "68ACD0D8-688F-467D-B35F-07B03A01B2A5 - bc259dcf5a7c08f9"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "pn53x_usb_init"
+                  moduleName = "SCARD"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/miyako/Downloads/libnfc-1.8.0/libnfc/drivers/pn53x_usb.c"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "221"
+                  endingLineNumber = "221"
+                  offsetFromSymbolStart = "517">
+               </Location>
+               <Location
+                  uuid = "68ACD0D8-688F-467D-B35F-07B03A01B2A5 - c553fac576860c9a"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "pn53x_usb_close"
+                  moduleName = "SCARD"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/miyako/Downloads/libnfc-1.8.0/libnfc/drivers/pn53x_usb.c"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "221"
+                  endingLineNumber = "221"
+                  offsetFromSymbolStart = "265">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "EFFE3E95-89C5-4CFF-A3F4-4CC516C4CFCC"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../libnfc-1.8.0/libnfc/nfc.c"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "305"
+            endingLineNumber = "305"
+            landmarkName = "nfc_open(context, connstring)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1B724312-ABF6-4F59-9157-053D4898E89B"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../libnfc-1.8.0/libnfc/drivers/pn53x_usb.c"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "507"
+            endingLineNumber = "507"
+            landmarkName = "pn53x_usb_open(context, connstring)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5FD94CFB-0AB0-48C7-810C-49F4452E34F3"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../libnfc-1.8.0/libnfc/drivers/pn53x_usb.c"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "805"
+            endingLineNumber = "805"
+            landmarkName = "pn53x_usb_init(pnd)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "38A21F99-D14E-44CA-BB55-F48ED5E48D69"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../libnfc-1.8.0/libnfc/drivers/pn53x_usb.c"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "766"
+            endingLineNumber = "766"
+            landmarkName = "pn53x_usb_init(pnd)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>

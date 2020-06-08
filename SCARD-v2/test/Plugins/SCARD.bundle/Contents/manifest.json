@@ -1,0 +1,16 @@
+{
+	"name": "SCARD",
+	"id": 20000,
+	"commands": [
+		{
+			"theme": "SCARD",
+			"syntax": "SCARD Get readers(&J):C",
+			"threadSafe": true
+		},
+    {
+      "theme": "SCARD",
+      "syntax": "SCARD Read tag(&J):J",
+      "threadSafe": true
+    }
+	]
+}

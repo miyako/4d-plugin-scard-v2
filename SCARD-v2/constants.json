@@ -1,0 +1,104 @@
+{
+    "themes": [
+        {
+            "theme": "SCARD Protocol",
+            "constants": [
+                {
+                    "name": "SCARD_PROTOCOL_T0",
+                    "value": "1:L"
+                },
+                {
+                    "name": "SCARD_PROTOCOL_T1",
+                    "value": "2:L"
+                },
+                {
+                    "name": "SCARD_PROTOCOL_RAW",
+                    "value": "4:L"
+                }
+            ]
+        },
+        {
+            "theme": "SCARD Scope",
+            "constants": [
+                {
+                    "name": "SCARD_SCOPE_USER",
+                    "value": "0:L"
+                },
+                {
+                    "name": "SCARD_SCOPE_TERMINAL",
+                    "value": "1:L"
+                },
+                {
+                    "name": "SCARD_SCOPE_SYSTEM",
+                    "value": "2:L"
+                }
+            ]
+        },
+        {
+            "theme": "SCARD Mode",
+            "constants": [
+                {
+                    "name": "SCARD_SHARE_EXCLUSIVE",
+                    "value": "1:L"
+                },
+                {
+                    "name": "SCARD_SHARE_SHARED",
+                    "value": "2:L"
+                },
+                {
+                    "name": "SCARD_SHARE_DIRECT",
+                    "value": "3:L"
+                }
+            ]
+        },
+        {
+            "theme": "SCARD State",
+            "constants": [
+                {
+                    "name": "SCARD_STATE_IGNORE",
+                    "value": "1:L"
+                },
+                {
+                    "name": "SCARD_STATE_CHANGED",
+                    "value": "2:L"
+                },
+                {
+                    "name": "SCARD_STATE_UNKNOWN",
+                    "value": "4:L"
+                },
+                {
+                    "name": "SCARD_STATE_UNAVAILABLE",
+                    "value": "8:L"
+                },
+                {
+                    "name": "SCARD_STATE_EMPTY",
+                    "value": "16:L"
+                },
+                {
+                    "name": "SCARD_STATE_PRESENT",
+                    "value": "32:L"
+                },
+                {
+                    "name": "SCARD_STATE_ATRMATCH",
+                    "value": "64:L"
+                },
+                {
+                    "name": "SCARD_STATE_EXCLUSIVE",
+                    "value": "128:L"
+                },
+                {
+                    "name": "SCARD_STATE_INUSE",
+                    "value": "256:L"
+                },
+                {
+                    "name": "SCARD_STATE_MUTE",
+                    "value": "512:L"
+                },
+                {
+                    "name": "SCARD_STATE_UNPOWERED",
+                    "value": "1024:L"
+                }
+            ]
+        }
+    ]
+}
