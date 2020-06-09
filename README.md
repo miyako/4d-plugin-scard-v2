@@ -7,7 +7,7 @@ Some card readers do not have a driver for Mac.
 
 * [SONY "PaSoRi" RC-S330](https://www.sony.jp/cat/products/RC-S330/)
 
-* [SONY "PaSori RC-S380"](https://www.sony.co.jp/Products/felica/consumer/products/RC-S380.html)
+* [SONY "PaSori" RC-S380](https://www.sony.co.jp/Products/felica/consumer/products/RC-S380.html)
 
 We can use [libnfc](https://github.com/nfc-tools/libnfc) as a fallback solution.
 
