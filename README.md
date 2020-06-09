@@ -52,7 +52,7 @@ SONY specifications are often hard to find, only published in Japanese, or made 
 
 * The developers of [nfcpy](https://github.com/nfcpy/nfcpy) have done a good job at supporting these SONY chipsets. We can deduce SONY proprietary protocol from their code.
 
-* This developer cridits nfcpy to support RC-S380 on Mac (libusb, not libnfc):
+* This developer cridits nfcpy to support RC-S380 via libusb on Mac:
 
   * [今更ですが、SONY RC-S380 で Suica の IDm を読み込んでみた](https://qiita.com/ysomei/items/32f366b61a7b631c4750)
   * [getdeviceid.cpp](https://github.com/ysomei/test_getnfcid/blob/master/getdeviceid.cpp)
