@@ -40,9 +40,9 @@ SONY specifications are often hard to find, only published in Japanese, or made 
 
   * [Web Application Programming Wiki*](https://wikiwiki.jp/webapp/NFC#d78a7e65)
   
-## libufc
+## libusb
 
-**Problem**: Some card readers do not have a driver for Mac. 
+**Problem**: Some card readers do not have a driver for Mac and has no libnfc support.
 
 * [SONY "PaSori" RC-S380](https://www.sony.co.jp/Products/felica/consumer/products/RC-S380.html)
 
