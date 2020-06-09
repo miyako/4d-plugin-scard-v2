@@ -21,6 +21,6 @@ SONY specifications are often published in Japanese or made available to corpora
 
 * The developers of [nfcpy](https://github.com/nfcpy/nfcpy) have done a good job at supporting these SONY chipsets. We can deduce SONY proprietary protocol from their code.
 
-*[Qiita post by @ysomei1(https://qiita.com/ysomei/items/32f366b61a7b631c4750)
+* [Qiita post by @ysomei1](https://qiita.com/ysomei/items/32f366b61a7b631c4750)
 
 
