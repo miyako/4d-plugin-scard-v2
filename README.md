@@ -38,3 +38,11 @@ SONY specifications are often hard to find, only published in Japanese, or made 
   * [Type B](https://github.com/miyako/4d-plugin-scard-v2/blob/master/SCARD-v2/test/Project/Sources/Methods/TEST_002_NFC_B.4dm)
   * Sorry I have no Type A cards to test...
   
+* For Windows, most vendors publish a native device driver so I don't see much need for a low-level driver like libnfc. But for research, it might be interesting to explore:
+
+  * [TDM-GCCでビルドするとうまくいった](https://hiro99ma.blogspot.com/2011/11/libnfctdm-gcc.html)
+
+* Other opensource options for the SONY chipset:
+
+  * [Web Application Programming Wiki*](https://wikiwiki.jp/webapp/NFC#d78a7e65)
+  
