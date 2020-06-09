@@ -3,13 +3,11 @@ SCARD with LIBUSB, LIBNFC fallback on Mac.
 
 ## libnfc
 
-Some card readers do not have a driver for Mac. 
+**Problem**: Some card readers do not have a driver for Mac. 
 
 * [SONY "PaSoRi" RC-S330](https://www.sony.jp/cat/products/RC-S330/)
 
-* [SONY "PaSori" RC-S380](https://www.sony.co.jp/Products/felica/consumer/products/RC-S380.html)
-
-We can use [libnfc](https://github.com/nfc-tools/libnfc) as a fallback solution.
+**Solution**: Use [libnfc](https://github.com/nfc-tools/libnfc) as a fallback solution.
 
 ### SONY chipsets and libnfc
 
@@ -17,16 +15,9 @@ SONY specifications are often hard to find, only published in Japanese, or made 
 
 * For the SONY chipset "RC-S956", the call succeeds once after the reader is connected to a Mac, but only that first time. After that, one must quit the application, disconnect the reader and try again. 
 
-* For the SONY chipset "NFC Port-100" (used by RC-S380), there is no support as of ``libnfc-1.8.0``.
+* For the SONY chipset "NFC Port-100" (used by RC-S380), there is no support as of ``libnfc-1.8.0`` (See below for alternative solution).
 
-* The developers of [nfcpy](https://github.com/nfcpy/nfcpy) have done a good job at supporting these SONY chipsets. We can deduce SONY proprietary protocol from their code.
-
-* This developer cridits nfcpy to support RC-S380 on Mac (libusb, not libnfc):
-
-  * [今更ですが、SONY RC-S380 で Suica の IDm を読み込んでみた](https://qiita.com/ysomei/items/32f366b61a7b631c4750)
-  * [getdeviceid.cpp](https://github.com/ysomei/test_getnfcid/blob/master/getdeviceid.cpp)
-
-* The fix for SONY "RC-S956" chipset
+* The patch for SONY "RC-S956" chipset
 
   * Added a ``usleep(300000)`` during ``pn53x_init``. So it was a timing issue? Thats ``0.3`` seconds.
 
@@ -48,4 +39,28 @@ SONY specifications are often hard to find, only published in Japanese, or made 
 * Other opensource options for the SONY chipset:
 
   * [Web Application Programming Wiki*](https://wikiwiki.jp/webapp/NFC#d78a7e65)
+  
+## libufc
+
+**Problem**: Some card readers do not have a driver for Mac. 
+
+* [SONY "PaSori" RC-S380](https://www.sony.co.jp/Products/felica/consumer/products/RC-S380.html)
+
+**Solution**: Use [libusb](https://github.com/libusb/libusb) as a fallback solution.
+
+### SONY chipsets and libusb
+
+* The developers of [nfcpy](https://github.com/nfcpy/nfcpy) have done a good job at supporting these SONY chipsets. We can deduce SONY proprietary protocol from their code.
+
+* This developer cridits nfcpy to support RC-S380 on Mac (libusb, not libnfc):
+
+  * [今更ですが、SONY RC-S380 で Suica の IDm を読み込んでみた](https://qiita.com/ysomei/items/32f366b61a7b631c4750)
+  * [getdeviceid.cpp](https://github.com/ysomei/test_getnfcid/blob/master/getdeviceid.cpp)
+
+* Example of libufc call
+
+  * [FeLiCa](https://github.com/miyako/4d-plugin-scard-v2/blob/master/SCARD-v2/test/Project/Sources/Methods/TEST_002_USB_F.4dm)
+  * [Type B](https://github.com/miyako/4d-plugin-scard-v2/blob/master/SCARD-v2/test/Project/Sources/Methods/TEST_002_NFC_B.4dm)
+  * Sorry I have no Type A cards to test...
+  
   
