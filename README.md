@@ -2,6 +2,7 @@
 SCARD with LIBUSB, LIBNFC fallback on Mac.
 
 ### libnfc
+---
 
 Some card readers do not have a driver for Mac. 
 
