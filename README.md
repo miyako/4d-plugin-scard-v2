@@ -41,6 +41,7 @@ SONY specifications are often hard to find, only published in Japanese, or made 
 * For Windows, most vendors publish a native device driver so I don't see much need for a low-level driver like libnfc. But for research, it might be interesting to explore:
 
   * [TDM-GCCでビルドするとうまくいった](https://hiro99ma.blogspot.com/2011/11/libnfctdm-gcc.html)
+  * [peacepenguin/libnfc-unofficialbuilds](https://github.com/peacepenguin/libnfc-unofficialbuilds)
 
 * Other opensource options for the SONY chipset:
 
