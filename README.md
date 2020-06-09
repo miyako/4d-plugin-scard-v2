@@ -31,6 +31,8 @@ SONY specifications are often hard to find, only published in Japanese, or made 
   * Added a ``usleep(300000)`` during ``pn53x_init``. So it was a timing issue? Thats ``0.3`` seconds.
 
   * [pn53x.c](https://github.com/miyako/4d-plugin-scard-v2/blob/master/SCARD-v2/patch/pn53x.c)
+  
+  * Without the fix, "error	libnfc.driver.pn53x_usb	Application level error detected" is thrown on second call
 
 * Example of libnfc call
 
