@@ -26,3 +26,8 @@ SONY specifications are often published in Japanese or made available to corpora
   * [今更ですが、SONY RC-S380 で Suica の IDm を読み込んでみた](https://qiita.com/ysomei/items/32f366b61a7b631c4750)
   * [getdeviceid.cpp](https://github.com/ysomei/test_getnfcid/blob/master/getdeviceid.cpp)
 
+* The fix for SONY "RC-S956" chipset
+
+Added a ``usleep(300000)`` during ``pn53x_init``. So it was a timing issue? Thats ``0.3`` seconds.
+
+[pn53x.c](https://github.com/miyako/4d-plugin-scard-v2/blob/master/SCARD-v2/patch/pn53x.c)
