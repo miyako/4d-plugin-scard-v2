@@ -1,8 +1,7 @@
 # 4d-plugin-scard-v2
 SCARD with LIBUSB, LIBNFC fallback on Mac.
 
-### libnfc
----
+## libnfc
 
 Some card readers do not have a driver for Mac. 
 
