@@ -57,7 +57,7 @@ SONY specifications are often hard to find, only published in Japanese, or made 
   * [今更ですが、SONY RC-S380 で Suica の IDm を読み込んでみた](https://qiita.com/ysomei/items/32f366b61a7b631c4750)
   * [getdeviceid.cpp](https://github.com/ysomei/test_getnfcid/blob/master/getdeviceid.cpp)
 
-* Example of libufc call
+* Example of libusb call
 
   * [FeLiCa](https://github.com/miyako/4d-plugin-scard-v2/blob/master/SCARD-v2/test/Project/Sources/Methods/TEST_002_USB_F.4dm)
   * [Type B](https://github.com/miyako/4d-plugin-scard-v2/blob/master/SCARD-v2/test/Project/Sources/Methods/TEST_002_NFC_B.4dm)
