@@ -1,25 +1,25 @@
 ﻿{
 	"editors": [
 		{
+			"type": "explorer"
+		},
+		{
+			"type": "method",
+			"id": 2147483642,
+			"previousTabType": "method",
+			"previousTabID": 2147483639,
+			"codeDescriptor": {
+				"type": 1,
+				"methodName": "TEST_002_NFC_F"
+			}
+		},
+		{
 			"type": "method",
 			"id": 2147483639,
-			"previousTabType": "method",
-			"previousTabID": 2147483645,
 			"codeDescriptor": {
 				"type": 1,
 				"methodName": "TEST_002_NFC_B"
 			}
-		},
-		{
-			"type": "method",
-			"id": 2147483645,
-			"codeDescriptor": {
-				"type": 1,
-				"methodName": "TEST_002_USB_B"
-			}
-		},
-		{
-			"type": "explorer"
 		}
 	]
 }

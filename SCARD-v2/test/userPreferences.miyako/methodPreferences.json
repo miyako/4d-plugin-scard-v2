@@ -225,19 +225,19 @@
 		"stamp": "2020-06-08T17:23:40.744Z"
 	},
 	"Sources/Methods/TEST_002_NFC_F.4dm": {
-		"startSelection": 0,
-		"endSelection": 0,
-		"firstSelectedLine": 8,
-		"lastSelectedLine": 8,
+		"startSelection": 7,
+		"endSelection": 7,
+		"firstSelectedLine": 19,
+		"lastSelectedLine": 19,
 		"folding": [],
 		"bookmarks": [],
-		"stamp": "2020-06-08T16:58:51.447Z"
+		"stamp": "2020-06-09T00:49:38.806Z"
 	},
 	"Sources/Methods/TEST_002_NFC_B.4dm": {
-		"startSelection": 56,
-		"endSelection": 56,
-		"firstSelectedLine": 17,
-		"lastSelectedLine": 17,
+		"startSelection": 0,
+		"endSelection": 0,
+		"firstSelectedLine": 13,
+		"lastSelectedLine": 13,
 		"folding": [],
 		"bookmarks": [],
 		"stamp": "2020-06-08T17:23:40.783Z"

@@ -40,7 +40,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <unistd.h>
+#include <unistd.h> //for usleep
 
 #include "nfc/nfc.h"
 #include "nfc-internal.h"
@@ -81,15 +81,17 @@ bool pn53x_current_target_is(const struct nfc_device *pnd, const nfc_target *pnt
 int
 pn53x_init(struct nfc_device *pnd)
 {
-    
-  usleep(300000);
-    
+  
   int res = 0;
   // GetFirmwareVersion command is used to set PN53x chips type (PN531, PN532 or PN533)
   if ((res = pn53x_decode_firmware_version(pnd)) < 0) {
     return res;
   }
 
+    if (CHIP_DATA(pnd)->type == RCS360) {
+        usleep(300000);
+    }
+    
   if (!CHIP_DATA(pnd)->supported_modulation_as_initiator) {
     CHIP_DATA(pnd)->supported_modulation_as_initiator = malloc(sizeof(nfc_modulation_type) * (NMT_END_ENUM + 1));
     if (! CHIP_DATA(pnd)->supported_modulation_as_initiator)

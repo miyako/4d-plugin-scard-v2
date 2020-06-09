@@ -1,5 +1,5 @@
 //%attributes = {}
-  //SONY S360 might not work after 1st call
+  //FOr SONY S360 on Mac (use native API on Windows!)
 
 $options:=New object:C1471("libnfc";True:C214)
 $readers:=SCARD Get readers ($options)
