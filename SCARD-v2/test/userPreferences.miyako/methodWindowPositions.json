@@ -162,8 +162,8 @@
 		"height": 787
 	},
 	"Sources/Methods/TEST_001_PCSC.4dm": {
-		"left": 556,
-		"top": 137,
+		"left": 594,
+		"top": 151,
 		"width": 1061,
 		"height": 705
 	},
@@ -190,5 +190,11 @@
 		"top": 118,
 		"width": 1061,
 		"height": 731
+	},
+	"Sources/Methods/TEST_002_USB_A.4dm": {
+		"left": 473,
+		"top": 221,
+		"width": 1081,
+		"height": 943
 	}
 }

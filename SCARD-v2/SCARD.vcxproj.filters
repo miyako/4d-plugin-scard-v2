@@ -6,6 +6,8 @@
     </ClCompile>
     <ClCompile Include="4DPlugin-SCARD.cpp" />
     <ClCompile Include="support\4DPlugin-JSON.cpp" />
+    <ClCompile Include="4D Plugin API\Classes\C_BLOB.cpp" />
+    <ClCompile Include="4D Plugin API\Classes\C_TEXT.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="4D Plugin API\4DPluginAPI.h">
@@ -25,6 +27,8 @@
     </ClInclude>
     <ClInclude Include="4DPlugin-SCARD.h" />
     <ClInclude Include="support\4DPlugin-JSON.h" />
+    <ClInclude Include="4D Plugin API\Classes\C_BLOB.h" />
+    <ClInclude Include="4D Plugin API\Classes\C_TEXT.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="4D Plugin API">

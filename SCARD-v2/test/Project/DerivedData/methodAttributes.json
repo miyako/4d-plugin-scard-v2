@@ -1,7 +1,10 @@
 ﻿{
 	"methods": {
 		"TEST_002_USB_F": {
-			"timeStamp": "2020-06-08T12:28:32.324Z"
+			"timeStamp": "2020-06-08T12:28:32.000Z"
+		},
+		"TEST_002_USB_A": {
+			"timeStamp": "2020-06-09T22:54:52.321Z"
 		},
 		"generate_file_from_template": {
 			"timeStamp": "2019-07-29T04:26:04.000Z",
@@ -11,7 +14,7 @@
 			}
 		},
 		"TEST_002_USB_B": {
-			"timeStamp": "2020-06-08T17:23:40.744Z"
+			"timeStamp": "2020-06-08T17:23:40.000Z"
 		},
 		"generate_project_infoplist": {
 			"timeStamp": "2019-07-02T13:51:21.000Z",
@@ -28,7 +31,7 @@
 			}
 		},
 		"TEST_002_NFC_F": {
-			"timeStamp": "2020-06-08T16:58:51.447Z"
+			"timeStamp": "2020-06-09T00:49:38.000Z"
 		},
 		"update_manifest_json": {
 			"timeStamp": "2019-12-13T04:37:40.000Z",
@@ -45,10 +48,10 @@
 			}
 		},
 		"TEST_002_NFC_B": {
-			"timeStamp": "2020-06-08T17:23:40.783Z"
+			"timeStamp": "2020-06-08T17:23:40.000Z"
 		},
 		"TEST_001_PCSC": {
-			"timeStamp": "2020-06-08T06:03:12.953Z"
+			"timeStamp": "2020-06-09T23:49:11.504Z"
 		},
 		"generate_project": {
 			"timeStamp": "2020-06-08T00:05:01.000Z"

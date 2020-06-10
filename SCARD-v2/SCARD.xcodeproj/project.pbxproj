@@ -27,6 +27,10 @@
 		D1419C1E248DC7BE0004E6E0 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1419C1D248DC7BE0004E6E0 /* IOKit.framework */; };
 		D1419C21248DE29A0004E6E0 /* libfreefare.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1419C1F248DE29A0004E6E0 /* libfreefare.a */; };
 		D1419C22248DE29A0004E6E0 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1419C20248DE29A0004E6E0 /* libcrypto.a */; };
+		D18E67802490380B00B2B4D1 /* C_BLOB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D18E677E2490380B00B2B4D1 /* C_BLOB.cpp */; };
+		D18E67812490380B00B2B4D1 /* C_BLOB.h in Headers */ = {isa = PBXBuildFile; fileRef = D18E677F2490380B00B2B4D1 /* C_BLOB.h */; };
+		D18E67842490382F00B2B4D1 /* C_TEXT.h in Headers */ = {isa = PBXBuildFile; fileRef = D18E67822490382F00B2B4D1 /* C_TEXT.h */; };
+		D18E67852490382F00B2B4D1 /* C_TEXT.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D18E67832490382F00B2B4D1 /* C_TEXT.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -67,6 +71,10 @@
 		D1419C20248DE29A0004E6E0 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = a/libcrypto.a; sourceTree = "<group>"; };
 		D1419C23248E86700004E6E0 /* libnfcchips.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnfcchips.a; path = a/libnfcchips.a; sourceTree = "<group>"; };
 		D14D10DD1A03A8A5008B3411 /* constants.xlf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = constants.xlf; sourceTree = "<group>"; };
+		D18E677E2490380B00B2B4D1 /* C_BLOB.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = C_BLOB.cpp; path = "4D Plugin API/Classes/C_BLOB.cpp"; sourceTree = "<group>"; };
+		D18E677F2490380B00B2B4D1 /* C_BLOB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = C_BLOB.h; path = "4D Plugin API/Classes/C_BLOB.h"; sourceTree = "<group>"; };
+		D18E67822490382F00B2B4D1 /* C_TEXT.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = C_TEXT.h; path = "4D Plugin API/Classes/C_TEXT.h"; sourceTree = "<group>"; };
+		D18E67832490382F00B2B4D1 /* C_TEXT.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = C_TEXT.cpp; path = "4D Plugin API/Classes/C_TEXT.cpp"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +99,10 @@
 		089C166AFE841209C02AAC07 /* SCARD */ = {
 			isa = PBXGroup;
 			children = (
+				D18E677E2490380B00B2B4D1 /* C_BLOB.cpp */,
+				D18E677F2490380B00B2B4D1 /* C_BLOB.h */,
+				D18E67832490382F00B2B4D1 /* C_TEXT.cpp */,
+				D18E67822490382F00B2B4D1 /* C_TEXT.h */,
 				D108BD7A1A03D1E6001F1B90 /* Manifest */,
 				08FB77ADFE841716C02AAC07 /* Source */,
 				089C167CFE841241C02AAC07 /* Resources */,
@@ -187,8 +199,10 @@
 				18B684F906944F2000CC6A1E /* Flags.h in Headers */,
 				18B684FA06944F2000CC6A1E /* PrivateTypes.h in Headers */,
 				18B684FB06944F2000CC6A1E /* PublicTypes.h in Headers */,
+				D18E67842490382F00B2B4D1 /* C_TEXT.h in Headers */,
 				D120937F13534DCC00A72CAA /* 4DPlugin-SCARD.h in Headers */,
 				D1419C12248DB8E80004E6E0 /* 4DPlugin-JSON.h in Headers */,
+				D18E67812490380B00B2B4D1 /* C_BLOB.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -293,6 +307,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D18E67802490380B00B2B4D1 /* C_BLOB.cpp in Sources */,
+				D18E67852490382F00B2B4D1 /* C_TEXT.cpp in Sources */,
 				18B684FF06944F8800CC6A1E /* 4DPlugin-SCARD.cpp in Sources */,
 				D1419C11248DB8E80004E6E0 /* 4DPlugin-JSON.cpp in Sources */,
 				D13116A91A03ACB700DE1322 /* 4DPluginAPI.c in Sources */,
@@ -348,6 +364,7 @@
 					"$(PROJECT_DIR)/a",
 				);
 				LIBRARY_STYLE = Bundle;
+				MARKETING_VERSION = 2.1.0;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
@@ -398,6 +415,7 @@
 					"$(PROJECT_DIR)/a",
 				);
 				LIBRARY_STYLE = Bundle;
+				MARKETING_VERSION = 2.1.0;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
@@ -446,6 +464,7 @@
 					"$(PROJECT_DIR)/a",
 				);
 				LIBRARY_STYLE = Bundle;
+				MARKETING_VERSION = 2.1.0;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";

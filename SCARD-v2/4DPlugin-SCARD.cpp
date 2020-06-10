@@ -10,8 +10,6 @@
 
 #include "4DPlugin-SCARD.h"
 
-#pragma mark -
-
 void PluginMain(PA_long32 selector, PA_PluginParameters params) {
     
 	try
@@ -35,6 +33,381 @@ void PluginMain(PA_long32 selector, PA_PluginParameters params) {
 
 	}
 }
+
+#pragma mark libpcsc
+
+LONG getData(SCARDHANDLE hCard,
+                     const SCARD_IO_REQUEST *pioSendPci,
+                     LPCBYTE pbSendBuffer,
+                     DWORD cbSendLength,
+                     SCARD_IO_REQUEST *pioRecvPci,
+                     LPBYTE pbRecvBuffer,
+                     LPDWORD pcbRecvLength,
+                     CUTF8String& Param,
+                     getDataMode mode) {
+    
+    C_BLOB temp;
+    
+    /* default values */
+    switch (mode)
+    {
+        case getDataMode_Type:
+        {
+            uint8_t cardType = 0L;/* unknown */
+            Param = CUTF8String((const uint8_t *)&cardType, 1);
+        }
+            break;
+        default:
+            break;
+    }
+    
+    LONG lResult;
+    
+    lResult = SCardTransmit(hCard,
+                                                    pioSendPci,
+                                                    pbSendBuffer,
+                                                    cbSendLength,
+                                                    pioRecvPci,
+                                                    pbRecvBuffer,
+                                                    pcbRecvLength);
+    switch(lResult)
+    {
+        case SCARD_S_SUCCESS:
+        {
+            DWORD cbRecvLength = *pcbRecvLength;
+            
+            BYTE SW1 = pbRecvBuffer[cbRecvLength - 2];
+            BYTE SW2 = pbRecvBuffer[cbRecvLength - 1];
+            
+            if ( SW1 != 0x90 || SW2 != 0x00 )
+            {
+                if ( SW1 == 0x63 && SW2 == 0x00 )
+                {
+                    /* data is not available */
+                }
+            }
+            else
+            {
+                switch (mode)
+                {
+                    case getDataMode_ID:
+                        Param = CUTF8String((const uint8_t *)pbRecvBuffer, cbRecvLength-2);
+                        break;
+                    case getDataMode_Type:
+                    {
+                        uint8_t cardType = pbRecvBuffer[0];
+                        Param = CUTF8String((const uint8_t *)&cardType, 1);
+                    }
+                        break;
+                    case getDataMode_Sys:
+                    {
+                        if (cbRecvLength - 2 != 19 || pbRecvBuffer[0] != 0x01)
+                        {
+                            lResult = SCARD_F_INTERNAL_ERROR;
+                        }else
+                        {
+                            Param = CUTF8String((const uint8_t *)&pbRecvBuffer[cbRecvLength - 4], 2);
+                        }
+                    }
+                        break;
+                    case getDataMode_Name:
+                    {
+#ifdef _WIN32
+                        wchar_t    buf[LIBPCSC_MAX_STRING_LENGTH];
+                        int len = MultiByteToWideChar(CP_ACP, 0, (LPCCH)pbRecvBuffer, cbRecvLength - 2, (LPWSTR)buf, LIBPCSC_MAX_STRING_LENGTH);
+                        if(len)
+                        {
+                            C_TEXT t;
+                            t.setUTF16String((const PA_Unichar*)buf, len);
+                            t.copyUTF8String(&Param);
+                        }
+#endif
+                    }
+                    default:
+                        break;
+                }
+            }
+        }
+            break;
+        case 0x458:
+            lResult = SCARD_W_REMOVED_CARD;
+            break;
+        case 0x16:
+            lResult = SCARD_E_INVALID_PARAMETER;
+            break;
+        default:
+            
+            break;
+    }
+    
+    return lResult;
+}
+
+#pragma mark libusb (mac)
+
+static void print_hex(const uint8_t *pbtData, const size_t szBytes, std::string &hex) {
+    
+    std::vector<uint8_t> buf((szBytes * 2) + 1);
+    memset((char *)&buf[0], 0, buf.size());
+    
+    for (size_t i = 0; i < szBytes; ++i) {
+        sprintf((char *)&buf[i * 2], "%02x", pbtData[i]);
+    }
+    
+    hex = std::string((char *)&buf[0], (szBytes * 2));
+}
+     
+#if VERSIONMAC
+
+struct device_info {
+  libusb_device *dev;
+  libusb_device_handle *dh;
+  uint8_t ep_in;
+  uint8_t ep_out;
+  int interface_num;
+};
+
+typedef device_info usb_device_info;
+
+static bool get_usb_information(libusb_device_handle *dh, usb_device_info *devinfo) {
+    
+    memset(devinfo, 0, sizeof(usb_device_info));
+    
+    libusb_device *dev;
+    struct libusb_config_descriptor *conf;
+    const struct libusb_endpoint_descriptor *endp;
+    const struct libusb_interface *intf;
+    const struct libusb_interface_descriptor *intdesc;
+    
+    dev = libusb_get_device(dh);
+    
+    if(dev == NULL){
+        std::cout << "device get error..." << std::endl;
+        return false;
+    }
+    
+    devinfo->dh = dh;
+    devinfo->dev = dev;
+    
+    libusb_get_config_descriptor(dev, 0, &conf);
+    
+    for(int i = 0; i < (int)conf->bNumInterfaces; i++){
+        intf = &conf->interface[i];
+        for(int j = 0; j < intf->num_altsetting; j++){
+            intdesc = &intf->altsetting[j];
+            for(int k = 0; k < (int)intdesc->bNumEndpoints; k++){
+                endp = &intdesc->endpoint[k];
+                
+                switch(endp->bmAttributes & LIBUSB_TRANSFER_TYPE_MASK) {
+                    case LIBUSB_TRANSFER_TYPE_BULK:
+                        //printf("bulk endpoint: %02x\n", endp->bEndpointAddress);
+                        if((endp->bEndpointAddress & 0x80) == LIBUSB_ENDPOINT_IN){
+                            devinfo->ep_in = endp->bEndpointAddress;
+                        }
+                        if((endp->bEndpointAddress & 0x80) == LIBUSB_ENDPOINT_OUT){
+                            devinfo->ep_out = endp->bEndpointAddress;
+                        }
+                        break;
+                    case LIBUSB_TRANSFER_TYPE_INTERRUPT:
+                        //printf("interrupt endpoint: %02x\n", endp->bEndpointAddress);
+                        break;
+                }
+            }
+        }
+    }
+    libusb_free_config_descriptor(conf);
+    
+    return true;
+}
+
+static short checksum(char cmd, uint8_t *buf, int size) {
+    
+  int sum = (unsigned int)cmd;
+  for(int i = 0; i < size; i++){
+    sum += buf[i];
+  }
+  return (0x100 - sum) % 0x100;
+}
+
+static int packet_init(usb_device_info *devinfo, int timeout) {
+    
+  uint8_t cmd[6];
+  int ret;
+  int len;
+
+  // ack command
+  memcpy(cmd, "\x00\x00\xff\x00\xff\x00", 6);
+      
+  ret = libusb_bulk_transfer(devinfo->dh, devinfo->ep_out,
+                 (unsigned char *)cmd, sizeof(cmd), &len, timeout);
+    
+  if(ret < 0) std::cout << "data send error..." << std::endl;
+    
+  return ret;
+}
+
+static size_t packet_send(usb_device_info *devinfo, uint8_t *buf, int size,
+                          std::vector<uint8_t> *usbbuf, int timeout) {
+    
+    uint8_t rcv[LIBUSB_DATASIZE], rbuf[LIBUSB_DATASIZE];
+    
+    int len;
+    int ret;
+    
+    ret = libusb_bulk_transfer(devinfo->dh, devinfo->ep_out,
+                               (unsigned char *)buf, size, &len, timeout);
+    if(ret < 0){
+        std::cout << "data send error..." << std::endl;
+        return 0;
+    }
+    
+    // receive ack/nck
+    ret = libusb_bulk_transfer(devinfo->dh, devinfo->ep_in,
+                               (unsigned char *)rcv, sizeof(rcv), &len, timeout);
+    if(ret < 0){
+        std::cout << "data receive error..." << std::endl;
+        return 0;
+    }
+    //printf("recv <- ");
+    //show_data(rcv, len);
+    
+    // receive response
+    ret = libusb_bulk_transfer(devinfo->dh, devinfo->ep_in,
+                               (unsigned char *)rbuf, sizeof(rbuf), &len, timeout);
+    if(ret < 0){
+        std::cout << "data receive error..." << std::endl;
+        return 0;
+    }
+    
+    if(len > usbbuf->size()) {
+        usbbuf->resize(len);
+    }
+    
+    memcpy(&usbbuf->at(0), rbuf, len);
+
+    return len;
+}
+
+/*
+ SonyのPaSoRi RC-S380
+ https://github.com/nfcpy/nfcpy/tree/master/src/nfc/clf
+ https://qiita.com/saturday06/items/333fcdf5b3b8030c9b05
+ 
+ */
+
+static size_t packet_write(usb_device_info *devinfo, uint8_t *buf, int size,
+                             std::vector<uint8_t> *usbbuf, int timeout) {
+    
+  uint8_t cmd[LIBUSB_DATASIZE];
+  int n;
+  short csum;
+
+  n = size;
+  if(n < 1) return 0;
+
+  // data = 0xd6 + data
+  // len = len(data)
+  // 00 00 ff ff ff len(L) len(H) checksum(len) data checksum(data) 00
+  cmd[0] = 0x00; cmd[1] = 0x00; cmd[2] = 0xff;
+  cmd[3] = 0xff; cmd[4] = 0xff;
+  cmd[5] = ((n + 1) & 0xff) ; cmd[6] = ((n + 1) & 0xff00) >> 8;
+  csum = (0x100 - (cmd[5] + cmd[6])) % 0x100;
+  cmd[7] = csum;
+
+  cmd[8] = 0xd6;
+  memcpy(cmd + 9, buf, size);
+
+  csum = checksum(cmd[8], buf, size);
+  cmd[9 + n] = csum;
+  
+  cmd[10 + n] = 0x00;
+  n += 11;
+  
+  return packet_send(devinfo, cmd, n, usbbuf, timeout);
+}
+
+static size_t packet_setcommandtype(usb_device_info *devinfo,
+                                      std::vector<uint8_t> *usbbuf, int timeout) {
+    
+  uint8_t cmd[2];
+  memcpy(cmd, "\x2a\x01", 2);
+  return packet_write(devinfo, cmd, sizeof(cmd), usbbuf, timeout);
+}
+
+static size_t packet_inset_rf(usb_device_info *devinfo, char type,
+                                std::vector<uint8_t> *usbbuf, int timeout) {
+    
+  uint8_t cmd[5];
+    
+  if(type == 'F') memcpy(cmd, "\x00\x01\x01\x0f\x01", 5); // 212F
+  if(type == 'A') memcpy(cmd, "\x00\x02\x03\x0f\x03", 5); // 106A
+  if(type == 'B') memcpy(cmd, "\x00\x03\x07\x0f\x07", 5); // 106B
+    
+  return packet_write(devinfo, cmd, sizeof(cmd), usbbuf, timeout);
+}
+
+static size_t packet_inset_protocol_1(usb_device_info *devinfo,
+                                        std::vector<uint8_t> *usbbuf, int timeout) {
+    
+  uint8_t cmd[39];
+    
+  memcpy(cmd, "\x02\x00\x18\x01\x01\x02\x01\x03\x00\x04\x00\x05\x00\x06\x00\x07\x08\x08\x00\x09\x00\x0a\x00\x0b\x00\x0c\x00\x0e\x04\x0f\x00\x10\x00\x11\x00\x12\x00\x13\x06", 39);
+    
+  return packet_write(devinfo, cmd, sizeof(cmd), usbbuf, timeout);
+}
+
+static size_t packet_inset_protocol_2(usb_device_info *devinfo, char type,
+                                      std::vector<uint8_t> *usbbuf, int timeout) {
+    
+  uint8_t cmd[11];
+    
+  int len;
+  if(type == 'F'){
+    len = 3;
+    memcpy(cmd, "\x02\x00\x18", len);
+  }
+  if(type == 'A'){
+    len = 11;
+    memcpy(cmd, "\x02\x00\x06\x01\x00\x02\x00\x05\x01\x07\x07", len);
+  }
+  if(type == 'B'){
+    len = 11;
+    memcpy(cmd, "\x02\x00\x14\x09\x01\x0a\x01\x0b\x01\x0c\x01", len);
+  }
+    
+  return packet_write(devinfo, cmd, len, usbbuf, timeout);
+}
+
+static size_t packet_sens_req(usb_device_info *devinfo, char type,
+                                std::vector<uint8_t> *usbbuf, int timeout) {
+    
+  uint8_t cmd[9];
+  int len;
+  if(type == 'F'){
+    len = 9;
+    memcpy(cmd, "\x04\x6e\x00\x06\x00\xff\xff\x01\x00", len);
+  }
+  if(type == 'A'){
+    len = 4;
+    memcpy(cmd, "\x04\x6e\x00\x26", len);/* TODO: send 7-bits */
+  }
+  if(type == 'B'){
+    len = 6;
+    memcpy(cmd, "\x04\x6e\x00\x05\x00\x10", len);
+  }
+  return packet_write(devinfo, cmd, len, usbbuf, timeout);
+}
+
+static size_t packet_switch_rf(usb_device_info *devinfo,
+                                 std::vector<uint8_t> *usbbuf, int timeout) {
+    
+  uint8_t cmd[2];
+  memcpy(cmd, "\x06\x00", 2);
+    
+  return packet_write(devinfo, cmd, sizeof(cmd), usbbuf, timeout);
+}
+
+#endif
 
 #pragma mark -
 
@@ -190,7 +563,7 @@ void SCARD_Get_readers(PA_PluginParameters params) {
                         libusb_device_handle *dh;
                         if(0 == libusb_open(dev, &dh)) {
                             
-                            buf.resize(MAXIMUM_NAME_STRING_LENGTH);
+                            buf.resize(LIBUSB_MAX_STRING_LENGTH);
                             memset((char *)&buf[0], 0, buf.size());
                             
                             libusb_result = libusb_get_string_descriptor_ascii(dh,
@@ -246,9 +619,9 @@ void SCARD_Get_readers(PA_PluginParameters params) {
         nfc_init(&context);
         if (context) {
             
-            nfc_connstring connstrings[MAX_DEVICE_COUNT];
+            nfc_connstring connstrings[LIBNFC_MAX_DEVICE_COUNT];
             
-            size_t szFound = nfc_list_devices(context, connstrings, MAX_DEVICE_COUNT);
+            size_t szFound = nfc_list_devices(context, connstrings, LIBNFC_MAX_DEVICE_COUNT);
             
             for(int i = 0; i < szFound; i++){
                 
@@ -294,270 +667,6 @@ void SCARD_Get_readers(PA_PluginParameters params) {
     PA_ReturnCollection(params, returnValues);
 }
 
-static void print_hex(const uint8_t *pbtData, const size_t szBytes, std::string &hex) {
-    
-    std::vector<uint8_t> buf((szBytes * 2) + 1);
-    memset((char *)&buf[0], 0, buf.size());
-    
-    for (size_t i = 0; i < szBytes; ++i) {
-        sprintf((char *)&buf[i * 2], "%02x", pbtData[i]);
-    }
-    
-    hex = std::string((char *)&buf[0], (szBytes * 2));
-}
-     
-#if VERSIONMAC
-
-struct device_info {
-  libusb_device *dev;
-  libusb_device_handle *dh;
-  uint8_t ep_in;
-  uint8_t ep_out;
-  int interface_num;
-};
-
-typedef device_info usb_device_info;
-
-static bool get_usb_information(libusb_device_handle *dh, usb_device_info *devinfo) {
-    
-    memset(devinfo, 0, sizeof(usb_device_info));
-    
-    libusb_device *dev;
-    struct libusb_config_descriptor *conf;
-    const struct libusb_endpoint_descriptor *endp;
-    const struct libusb_interface *intf;
-    const struct libusb_interface_descriptor *intdesc;
-    
-    dev = libusb_get_device(dh);
-    
-    if(dev == NULL){
-        std::cout << "device get error..." << std::endl;
-        return false;
-    }
-    
-    devinfo->dh = dh;
-    devinfo->dev = dev;
-    
-    libusb_get_config_descriptor(dev, 0, &conf);
-    
-    for(int i = 0; i < (int)conf->bNumInterfaces; i++){
-        intf = &conf->interface[i];
-        for(int j = 0; j < intf->num_altsetting; j++){
-            intdesc = &intf->altsetting[j];
-            for(int k = 0; k < (int)intdesc->bNumEndpoints; k++){
-                endp = &intdesc->endpoint[k];
-                
-                switch(endp->bmAttributes & LIBUSB_TRANSFER_TYPE_MASK) {
-                    case LIBUSB_TRANSFER_TYPE_BULK:
-                        //printf("bulk endpoint: %02x\n", endp->bEndpointAddress);
-                        if((endp->bEndpointAddress & 0x80) == LIBUSB_ENDPOINT_IN){
-                            devinfo->ep_in = endp->bEndpointAddress;
-                        }
-                        if((endp->bEndpointAddress & 0x80) == LIBUSB_ENDPOINT_OUT){
-                            devinfo->ep_out = endp->bEndpointAddress;
-                        }
-                        break;
-                    case LIBUSB_TRANSFER_TYPE_INTERRUPT:
-                        //printf("interrupt endpoint: %02x\n", endp->bEndpointAddress);
-                        break;
-                }
-            }
-        }
-    }
-    libusb_free_config_descriptor(conf);
-    
-    return true;
-}
-
-static int packet_init(usb_device_info *devinfo, int timeout) {
-    
-  uint8_t cmd[6];
-  int ret;
-  int len;
-
-  // ack command
-  memcpy(cmd, "\x00\x00\xff\x00\xff\x00", 6);
-      
-  ret = libusb_bulk_transfer(devinfo->dh, devinfo->ep_out,
-                 (unsigned char *)cmd, sizeof(cmd), &len, timeout);
-    
-  if(ret < 0) std::cout << "data send error..." << std::endl;
-    
-  return ret;
-}
-
-static short checksum(char cmd, uint8_t *buf, int size) {
-    
-  int sum = (unsigned int)cmd;
-  for(int i = 0; i < size; i++){
-    sum += buf[i];
-  }
-  return (0x100 - sum) % 0x100;
-}
-
-static size_t packet_send(usb_device_info *devinfo, uint8_t *buf, int size,
-                          std::vector<uint8_t> *usbbuf, int timeout) {
-    
-    uint8_t rcv[LIBUSB_DATASIZE], rbuf[LIBUSB_DATASIZE];
-    
-    int len;
-    int ret;
-    
-    ret = libusb_bulk_transfer(devinfo->dh, devinfo->ep_out,
-                               (unsigned char *)buf, size, &len, timeout);
-    if(ret < 0){
-        std::cout << "data send error..." << std::endl;
-        return 0;
-    }
-    
-    // receive ack/nck
-    ret = libusb_bulk_transfer(devinfo->dh, devinfo->ep_in,
-                               (unsigned char *)rcv, sizeof(rcv), &len, timeout);
-    if(ret < 0){
-        std::cout << "data receive error..." << std::endl;
-        return 0;
-    }
-    //printf("recv <- ");
-    //show_data(rcv, len);
-    
-    // receive response
-    ret = libusb_bulk_transfer(devinfo->dh, devinfo->ep_in,
-                               (unsigned char *)rbuf, sizeof(rbuf), &len, timeout);
-    if(ret < 0){
-        std::cout << "data receive error..." << std::endl;
-        return 0;
-    }
-    
-    if(len > usbbuf->size()) {
-        usbbuf->resize(len);
-    }
-    
-    memcpy(&usbbuf->at(0), rbuf, len);
-
-    return len;
-}
-
-/*
- SonyのPaSoRi RC-S380
- https://github.com/nfcpy/nfcpy/tree/master/src/nfc/clf
- https://qiita.com/saturday06/items/333fcdf5b3b8030c9b05
- 
- */
-
-static size_t packet_write(usb_device_info *devinfo, uint8_t *buf, int size,
-                             std::vector<uint8_t> *usbbuf, int timeout) {
-    
-  uint8_t cmd[LIBUSB_DATASIZE];
-  int n;
-  short csum;
-
-  n = size;
-  if(n < 1) return 0;
-
-  // data = 0xd6 + data
-  // len = len(data)
-  // 00 00 ff ff ff len(L) len(H) checksum(len) data checksum(data) 00
-  cmd[0] = 0x00; cmd[1] = 0x00; cmd[2] = 0xff;
-  cmd[3] = 0xff; cmd[4] = 0xff;
-  cmd[5] = ((n + 1) & 0xff) ; cmd[6] = ((n + 1) & 0xff00) >> 8;
-  csum = (0x100 - (cmd[5] + cmd[6])) % 0x100;
-  cmd[7] = csum;
-
-  cmd[8] = 0xd6;
-  memcpy(cmd + 9, buf, size);
-
-  csum = checksum(cmd[8], buf, size);
-  cmd[9 + n] = csum;
-  
-  cmd[10 + n] = 0x00;
-  n += 11;
-  
-  return packet_send(devinfo, cmd, n, usbbuf, timeout);
-}
-
-static size_t packet_setcommandtype(usb_device_info *devinfo,
-                                      std::vector<uint8_t> *usbbuf, int timeout) {
-    
-  uint8_t cmd[2];
-  memcpy(cmd, "\x2a\x01", 2);
-  return packet_write(devinfo, cmd, sizeof(cmd), usbbuf, timeout);
-}
-
-static size_t packet_inset_rf(usb_device_info *devinfo, char type,
-                                std::vector<uint8_t> *usbbuf, int timeout) {
-    
-  uint8_t cmd[5];
-    
-  if(type == 'F') memcpy(cmd, "\x00\x01\x01\x0f\x01", 5); // 212F
-  if(type == 'A') memcpy(cmd, "\x00\x02\x03\x0f\x03", 5); // 106A
-  if(type == 'B') memcpy(cmd, "\x00\x03\x07\x0f\x07", 5); // 106B
-    
-  return packet_write(devinfo, cmd, sizeof(cmd), usbbuf, timeout);
-}
-
-static size_t packet_inset_protocol_1(usb_device_info *devinfo,
-                                        std::vector<uint8_t> *usbbuf, int timeout) {
-    
-  uint8_t cmd[39];
-    
-  memcpy(cmd, "\x02\x00\x18\x01\x01\x02\x01\x03\x00\x04\x00\x05\x00\x06\x00\x07\x08\x08\x00\x09\x00\x0a\x00\x0b\x00\x0c\x00\x0e\x04\x0f\x00\x10\x00\x11\x00\x12\x00\x13\x06", 39);
-    
-  return packet_write(devinfo, cmd, sizeof(cmd), usbbuf, timeout);
-}
-
-static size_t packet_inset_protocol_2(usb_device_info *devinfo, char type,
-                                      std::vector<uint8_t> *usbbuf, int timeout) {
-    
-  uint8_t cmd[11];
-    
-  int len;
-  if(type == 'F'){
-    len = 3;
-    memcpy(cmd, "\x02\x00\x18", len);
-  }
-  if(type == 'A'){
-    len = 11;
-    memcpy(cmd, "\x02\x00\x06\x01\x00\x02\x00\x05\x01\x07\x07", len);
-  }
-  if(type == 'B'){
-    len = 11;
-    memcpy(cmd, "\x02\x00\x14\x09\x01\x0a\x01\x0b\x01\x0c\x01", len);
-  }
-    
-  return packet_write(devinfo, cmd, len, usbbuf, timeout);
-}
-
-static size_t packet_sens_req(usb_device_info *devinfo, char type,
-                                std::vector<uint8_t> *usbbuf, int timeout) {
-    
-  uint8_t cmd[9];
-  int len;
-  if(type == 'F'){
-    len = 9;
-    memcpy(cmd, "\x04\x6e\x00\x06\x00\xff\xff\x01\x00", len);
-  }
-  if(type == 'A'){
-    len = 4;
-    memcpy(cmd, "\x04\x6e\x00\x26", len);
-  }
-  if(type == 'B'){
-    len = 6;
-    memcpy(cmd, "\x04\x6e\x00\x05\x00\x10", len);
-  }
-  return packet_write(devinfo, cmd, len, usbbuf, timeout);
-}
-
-static size_t packet_switch_rf(usb_device_info *devinfo,
-                                 std::vector<uint8_t> *usbbuf, int timeout) {
-    
-  uint8_t cmd[2];
-  memcpy(cmd, "\x06\x00", 2);
-    
-  return packet_write(devinfo, cmd, sizeof(cmd), usbbuf, timeout);
-}
-
-#endif
-
 void SCARD_Read_tag(PA_PluginParameters params) {
     
     PA_ObjectRef returnValue = PA_CreateObject();
@@ -565,29 +674,81 @@ void SCARD_Read_tag(PA_PluginParameters params) {
     
     ob_set_b(returnValue, L"success", false);
     
+    int timeout = 3; //seconds
+    
+    bool use_libpcsc = false;
     bool use_libusb = false;
     bool use_libnfc = false;
     
     /* libusb */
-    CUTF8String vid;
-    CUTF8String pid;
-    char nfc_type = 'F';
-    int libusb_timeout = LIBUSB_API_TIMEOUT;
-    int libusb_timeout_for_polling = LIBUSB_API_TIMEOUT_FOR_POLLING;
-    
+#if VERSIONMAC
+	CUTF8String vid;
+	CUTF8String pid;
+	char nfc_type = 'F';
+	int libusb_timeout = LIBUSB_API_TIMEOUT;
+	int libusb_timeout_for_polling = LIBUSB_API_TIMEOUT_FOR_POLLING;
+#endif
+
     /* libnfc */
-    int libnfc_timeout = LIBNFC_API_TIMEOUT;
-    CUTF8String connstring;
-    nfc_modulation modulation;
-    modulation.nmt = NMT_FELICA;
-    modulation.nbr = NBR_212;
+#if VERSIONMAC
+	int libnfc_timeout = LIBNFC_API_TIMEOUT;
+	CUTF8String connstring;
+	nfc_modulation modulation;
+	modulation.nmt = NMT_FELICA;
+	modulation.nbr = NBR_212;
+#endif
+
+            
+    /* libscpc */
+    #if VERSIONWIN
+    LPTSTR lpszReaderName = NULL;
+    CUTF16String name;
+    #else
+    LPSTR lpszReaderName = NULL;
+    CUTF8String name;
+    #endif
+    DWORD protocols = SCARD_PROTOCOL_T0|SCARD_PROTOCOL_T1;
+    DWORD mode = SCARD_SHARE_SHARED;
+    DWORD scope = SCARD_SCOPE_USER;
     
-    int timeout = 3; //seconds
-        
     if(options) {
         
-        if(ob_is_defined(options, L"usb")) {
+        if(ob_is_defined(options, L"protocol")) {
+            int _protocol = ob_get_n(options, L"protocol");
+            if(_protocol >= 0) {
+                protocols = _protocol;
+            }
+        }
+        
+        if(ob_is_defined(options, L"mode")) {
+            int _mode = ob_get_n(options, L"mode");
+            if(_mode >= 0) {
+                mode = _mode;
+            }
+        }
+        
+        if(ob_is_defined(options, L"scope")) {
+            int _scope = ob_get_n(options, L"scope");
+            if(_scope >= 0) {
+                scope = _scope;
+            }
+        }
+        
+        if(ob_is_defined(options, L"name")) {
+#if VERSIONWIN
+            ob_get_a(options, L"name", &name);
+            lpszReaderName = (LPTSTR)name.c_str();
+#else
             
+            ob_get_s(options, L"name", &name);
+            lpszReaderName = (LPSTR)name.c_str();
+#endif
+            if(name.length()) {
+                use_libpcsc = true;
+            }
+        }
+#if VERSIONMAC
+        if(ob_is_defined(options, L"usb")) {
             PA_ObjectRef usb = ob_get_o(options, L"usb");
             if(usb) {
                 if(ob_is_defined(usb, L"vid")) {
@@ -644,14 +805,16 @@ void SCARD_Read_tag(PA_PluginParameters params) {
                 }
             }
         }
-        
+#endif
+
         if(ob_is_defined(options, L"timeout")) {
             int _timeout = ob_get_n(options, L"timeout");
             if(_timeout > 0) {
                 timeout = _timeout;
             }
         }
-                
+
+#if VERSIONMAC     
         if(use_libnfc) {
             if(ob_is_defined(options, L"card")) {
                 CUTF8String _card;
@@ -671,13 +834,290 @@ void SCARD_Read_tag(PA_PluginParameters params) {
                 }
             }
         }
+#endif        
         
-        
-        
-   
     }
         
-    
+    if(use_libpcsc) {
+        
+        SCARDCONTEXT hContext;
+        
+        LONG lResult = SCardEstablishContext(scope, NULL, NULL, &hContext);
+        
+        #if VERSIONWIN
+            /* http://eternalwindows.jp/security/scard/scard02.html */
+            if(lResult == SCARD_E_NO_SERVICE) {
+                HANDLE hEvent = SCardAccessStartedEvent();
+                DWORD dwResult = WaitForSingleObject(hEvent, DEFAULT_TIMEOUT_MS_FOR_RESOURCE_MANAGER);
+                if (dwResult == WAIT_OBJECT_0) {
+                    lResult = SCardEstablishContext(scope, NULL, NULL, &hContext);
+                }
+                SCardReleaseStartedEvent();
+            }
+        #endif
+        
+        if (lResult == SCARD_S_SUCCESS) {
+            
+            SCARD_READERSTATE readerState;
+            readerState.szReader = lpszReaderName;
+            readerState.dwCurrentState = SCARD_STATE_UNAWARE;
+
+            
+            /* return immediately; check state */
+            lResult = SCardGetStatusChange(hContext, 0, &readerState, 1);
+            if (lResult == SCARD_S_SUCCESS) {
+            
+                int is_card_present = 0;
+                
+                time_t startTime = time(0);
+                time_t anchorTime = startTime;
+                
+                bool isPolling = true;
+
+                while (isPolling) {
+                    
+                    time_t now = time(0);
+                    time_t elapsedTime = abs(startTime - now);
+                    
+                    if(elapsedTime > 0)
+                    {
+                        startTime = now;
+                        PA_YieldAbsolute();
+                    }
+                    
+                    elapsedTime = abs(anchorTime - now);
+                    
+                    if(elapsedTime < timeout) {
+
+                        if (readerState.dwEventState & SCARD_STATE_EMPTY) {
+                            lResult = SCardGetStatusChange(hContext, LIBPCSC_API_TIMEOUT, &readerState, 1);
+                        }
+                        
+                        if (readerState.dwEventState & SCARD_STATE_UNAVAILABLE) {
+                            isPolling = false;
+                        }
+                        
+                        if (readerState.dwEventState & SCARD_STATE_PRESENT) {
+                            is_card_present = 1;
+                            isPolling = false;
+                        }
+                         
+                    }else{
+                        /* timeout */
+                        isPolling = false;
+                    }
+                       
+                }
+                
+                if(is_card_present) {
+             
+                    SCARDHANDLE hCard;
+                    DWORD dwActiveProtocol;
+                    DWORD dwProtocol;
+                    DWORD dwAtrSize;
+                    DWORD dwState;
+                    
+                    BYTE atr[256];
+
+                    C_BLOB temp;
+                    
+                    lResult = SCardConnect(hContext,
+                                                                 lpszReaderName,
+                                                                 mode,
+                                                                 protocols,
+                                                                 &hCard,
+                                                                 &dwActiveProtocol);
+                    switch (lResult)
+                    {
+                        case (LONG)SCARD_W_REMOVED_CARD:
+                            /* SCARD_W_REMOVED_CARD */
+                            break;
+                        case SCARD_S_SUCCESS:
+                            lResult = SCardStatus(hCard, NULL, NULL, &dwState, &dwProtocol, atr, &dwAtrSize);
+                            if (lResult == SCARD_S_SUCCESS) {
+                                
+                                BYTE pbSendBuffer_GetIDm[5] = {
+                                    APDU_CLA_GENERIC,
+                                    APDU_INS_GET_DATA,
+                                    APDU_P1_GET_UID,
+                                    APDU_P2_NONE,
+                                    APDU_LE_MAX_LENGTH
+                                };
+                                
+                                BYTE pbSendBuffer_GetPMm[5] = {
+                                    APDU_CLA_GENERIC,
+                                    APDU_INS_GET_DATA,
+                                    APDU_P1_GET_PMm,
+                                    APDU_P2_NONE,
+                                    APDU_LE_MAX_LENGTH
+                                };
+
+                                BYTE pbSendBuffer_GetCID[5] = {
+                                    APDU_CLA_GENERIC,
+                                    APDU_INS_GET_DATA,
+                                    APDU_P1_GET_CARD_ID,
+                                    APDU_P2_NONE,
+                                    APDU_LE_MAX_LENGTH
+                                };
+
+                                BYTE pbSendBuffer_GetName[5] = {
+                                    APDU_CLA_GENERIC,
+                                    APDU_INS_GET_DATA,
+                                    APDU_P1_GET_CARD_NAME,
+                                    APDU_P2_NONE,
+                                    APDU_LE_MAX_LENGTH
+                                };
+                                
+                                BYTE pbSendBuffer_GetType[5] = {
+                                    APDU_CLA_GENERIC,
+                                    APDU_INS_GET_DATA,
+                                    APDU_P1_GET_CARD_TYPE,
+                                    APDU_P2_NONE,
+                                    APDU_LE_MAX_LENGTH
+                                };
+
+                                BYTE pbSendBuffer_GetTypeName[5] = {
+                                    APDU_CLA_GENERIC,
+                                    APDU_INS_GET_DATA,
+                                    APDU_P1_GET_CARD_TYPE_NAME,
+                                    APDU_P2_NONE,
+                                    APDU_LE_MAX_LENGTH
+                                };
+                                
+                                BYTE pbRecvBuffer[256];
+                                DWORD pcbRecvLength = 256;
+
+                                /*
+                                lResult = getData(hCard,
+                                    SCARD_PCI_T1,
+                                    pbSendBuffer_GetSys,
+                                    sizeof(pbSendBuffer_GetSys),
+                                    NULL,
+                                    pbRecvBuffer,
+                                    &pcbRecvLength,
+                                    Param_SystemCode,
+                                    getDataMode_Sys);
+                                    */
+
+                                CUTF8String idm;
+                                
+                                lResult = getData(hCard,
+                                                  SCARD_PCI_T1,
+                                                  pbSendBuffer_GetIDm,
+                                                  sizeof(pbSendBuffer_GetIDm),
+                                                  NULL,
+                                                  pbRecvBuffer,
+                                                  &pcbRecvLength,
+                                                  idm,
+                                                  getDataMode_ID);
+                                
+                                if(lResult == SCARD_S_SUCCESS) {
+                                    std::string _IDm;
+                                    print_hex(idm.c_str(), 8, _IDm);
+                                    ob_set_s(returnValue, L"IDm", _IDm.c_str());
+                                    ob_set_b(returnValue, L"success", true);
+                                }
+                                
+                                CUTF8String pmm;
+                                
+                                lResult = getData(hCard,
+                                                  SCARD_PCI_T1,
+                                                  pbSendBuffer_GetPMm,
+                                                  sizeof(pbSendBuffer_GetPMm),
+                                                  NULL,
+                                                  pbRecvBuffer,
+                                                  &pcbRecvLength,
+                                                  pmm,
+                                                  getDataMode_ID);
+
+                                if(lResult == SCARD_S_SUCCESS) {
+                                    std::string _PMm;
+                                    print_hex(pmm.c_str(), 8, _PMm);
+                                    ob_set_s(returnValue, L"PMm", _PMm.c_str());
+                                }
+                                
+                                CUTF8String typ;
+                                
+                                lResult = getData(hCard,
+                                                  SCARD_PCI_T1,
+                                                  pbSendBuffer_GetType,
+                                                  sizeof(pbSendBuffer_GetType),
+                                                  NULL,
+                                                  pbRecvBuffer,
+                                                  &pcbRecvLength,
+                                                  typ,
+                                                  getDataMode_Type);
+                                
+                                if(lResult == SCARD_S_SUCCESS) {
+									std::string _typ;
+									print_hex(typ.c_str(), 1, _typ);
+                                    ob_set_s(returnValue, L"type", (const char *)_typ.c_str());
+                                }
+                                
+                                CUTF8String cid;
+                                
+                                lResult = getData(hCard,
+                                                  SCARD_PCI_T1,
+                                                  pbSendBuffer_GetCID,
+                                                  sizeof(pbSendBuffer_GetCID),
+                                                  NULL,
+                                                  pbRecvBuffer,
+                                                  &pcbRecvLength,
+                                                  cid,
+                                                  getDataMode_Type);
+                                
+                                if(lResult == SCARD_S_SUCCESS) {
+									std::string _cid;
+									print_hex(cid.c_str(), 1, _cid);
+                                    ob_set_s(returnValue, L"cid", (const char *)_cid.c_str());
+                                }
+                                
+                                CUTF8String cname;
+                                
+                                lResult = getData(hCard,
+                                                  SCARD_PCI_T1,
+                                                  pbSendBuffer_GetName,
+                                                  sizeof(pbSendBuffer_GetName),
+                                                  NULL,
+                                                  pbRecvBuffer,
+                                                  &pcbRecvLength,
+                                                  cname,
+                                                  getDataMode_Name);
+                                
+                                if(lResult == SCARD_S_SUCCESS) {
+                                    ob_set_s(returnValue, L"name", (const char *)cname.c_str());
+                                }
+                                
+                                CUTF8String tname;
+                                
+                                lResult = getData(hCard,
+                                                  SCARD_PCI_T1,
+                                                  pbSendBuffer_GetTypeName,
+                                                  sizeof(pbSendBuffer_GetTypeName),
+                                                  NULL,
+                                                  pbRecvBuffer,
+                                                  &pcbRecvLength,
+                                                  tname,
+                                                  getDataMode_Name);
+                                
+                                if(lResult == SCARD_S_SUCCESS) {
+                                    ob_set_s(returnValue, L"typeName", (const char *)tname.c_str());
+                                }
+
+                            }/* SCardStatus */
+                            SCardDisconnect(hCard, SCARD_LEAVE_CARD);
+                            break;
+                        default:
+                            break;
+                    }
+ 
+                }
+                
+            }
+            SCardReleaseContext(hContext);
+        }
+        
+    }
 
 #if VERSIONMAC
     
@@ -832,6 +1272,14 @@ void SCARD_Read_tag(PA_PluginParameters params) {
                                                  
                                              }
                                          }
+                                         
+                                         if(isPolling) {
+                                                /* ATQA incomplete: need to implement SAK anti-collision sequence
+                                                 http://www.ti.com/lit/an/sloa136/sloa136.pdf
+                                                 https://www.nxp.com/docs/en/application-note/AN10833.pdf
+                                                 https://github.com/nfc-tools/libnfc/blob/master/examples/nfc-anticol.c
+                                                 */
+                                         }
                                      }
                                  }else{
                                      /* read/write error */
@@ -869,12 +1317,7 @@ void SCARD_Read_tag(PA_PluginParameters params) {
         if (context) {
             
             nfc_device *device = nfc_open(context, (char *)connstring.c_str());
-            
-            /* felica fails on 2nd round; need to disconenct usb
-               libnfc.driver.pn53x_usb    Application level error detected
-               "Due to lack of public documentation, Sony devices does not have a good support in libnfc."
-             */
-            
+
             if(device) {
                 
                 if (nfc_initiator_init(device) >= 0) {

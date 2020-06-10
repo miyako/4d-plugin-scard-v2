@@ -44,25 +44,20 @@ void SCARD_Read_tag(PA_PluginParameters params);
 #define LIBUSB_USLEEP_DURATION 250000 //microseconds
 #define LIBUSB_API_TIMEOUT 2000  //milliseconds
 #define LIBUSB_API_TIMEOUT_FOR_POLLING 500 //milliseconds
+#define LIBUSB_MAX_STRING_LENGTH 512
 
 /* libnfc */
 #define LIBNFC_API_TIMEOUT 3000  //milliseconds
+#define LIBNFC_MAX_DEVICE_COUNT 8
 
-#define DEFAULT_MAX_TARGET_COUNTFOR_LIBNFC 8
-
-#define MAX_TIMEOUT_MS 2000
-#define DEFAULT_TIMEOUT_MS 50
-#define DEFAULT_PROTOCOLS SCARD_PROTOCOL_T0|SCARD_PROTOCOL_T1
-#ifndef MAXIMUM_ATTR_STRING_LENGTH
-#define MAXIMUM_ATTR_STRING_LENGTH 32
-#endif
-
-#define MAXIMUM_NAME_STRING_LENGTH 512
-#define MAX_DEVICE_COUNT 8
-
+/* libpcsc */
+#define LIBPCSC_API_TIMEOUT 2000  //milliseconds
+#define LIBPCSC_MAX_STRING_LENGTH 512
 #ifndef SCARD_ALL_READERS
 #define SCARD_ALL_READERS NULL
 #endif
+
+#include "C_BLOB.h"
 
 /* https://sabowl.sakura.ne.jp/gpsnmeajp/cpp/lazypcscfelicalite/lazypcscfelicalite.h */
 

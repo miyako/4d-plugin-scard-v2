@@ -198,13 +198,13 @@
 		"stamp": "2019-12-13T04:37:40.619Z"
 	},
 	"Sources/Methods/TEST_001_PCSC.4dm": {
-		"startSelection": 0,
-		"endSelection": 0,
-		"firstSelectedLine": 2,
-		"lastSelectedLine": 2,
+		"startSelection": 46,
+		"endSelection": 46,
+		"firstSelectedLine": 25,
+		"lastSelectedLine": 25,
 		"folding": [],
 		"bookmarks": [],
-		"stamp": "2020-06-08T06:03:12.953Z"
+		"stamp": "2020-06-09T23:49:11.504Z"
 	},
 	"Sources/Methods/TEST_002_USB_F.4dm": {
 		"startSelection": 29,
@@ -225,21 +225,30 @@
 		"stamp": "2020-06-08T17:23:40.744Z"
 	},
 	"Sources/Methods/TEST_002_NFC_F.4dm": {
-		"startSelection": 7,
-		"endSelection": 7,
-		"firstSelectedLine": 19,
-		"lastSelectedLine": 19,
+		"startSelection": 0,
+		"endSelection": 0,
+		"firstSelectedLine": 12,
+		"lastSelectedLine": 12,
 		"folding": [],
 		"bookmarks": [],
-		"stamp": "2020-06-09T00:49:38.806Z"
+		"stamp": "2020-06-09T00:49:38.000Z"
 	},
 	"Sources/Methods/TEST_002_NFC_B.4dm": {
 		"startSelection": 0,
 		"endSelection": 0,
-		"firstSelectedLine": 13,
-		"lastSelectedLine": 13,
+		"firstSelectedLine": 0,
+		"lastSelectedLine": 0,
 		"folding": [],
 		"bookmarks": [],
-		"stamp": "2020-06-08T17:23:40.783Z"
+		"stamp": "2020-06-08T17:23:40.000Z"
+	},
+	"Sources/Methods/TEST_002_USB_A.4dm": {
+		"startSelection": 0,
+		"endSelection": 0,
+		"firstSelectedLine": 17,
+		"lastSelectedLine": 17,
+		"folding": [],
+		"bookmarks": [],
+		"stamp": "2020-06-09T22:54:52.321Z"
 	}
 }
