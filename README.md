@@ -25,7 +25,7 @@ SONY specifications are often hard to find, only published in Japanese, or made 
 
 * For the SONY chipset "RC-S956", the call succeeds once after the reader is connected to a Mac, but only that first time. After that, one must quit the application, disconnect the reader and try again. 
 
-* For the SONY chipset "NFC Port-100" (used by RC-S380), there is no support as of ``libnfc-1.8.0`` (See below for alternative solution).
+* For the SONY chipset "NFC Port-100" (used by RC-S380), there is no support as of ``libnfc-1.8.0`` (see below for alternative solution).
 
 * The patch for SONY "RC-S956" chipset
 
