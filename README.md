@@ -71,7 +71,7 @@ SONY specifications are often hard to find, only published in Japanese, or made 
 
   * [FeliCa](https://github.com/miyako/4d-plugin-scard-v2/blob/master/SCARD-v2/test/Project/Sources/Methods/TEST_002_USB_F.4dm)
   * [Type B](https://github.com/miyako/4d-plugin-scard-v2/blob/master/SCARD-v2/test/Project/Sources/Methods/TEST_002_NFC_B.4dm)
-  * Sorry I have no Type A cards to test...
+  * Type A requires [SAK anti-collision sequence](https://github.com/nfc-tools/libnfc/blob/master/examples/nfc-anticol.c); not implemented here...
  
 ---
 
