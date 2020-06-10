@@ -69,7 +69,7 @@ SONY specifications are often hard to find, only published in Japanese, or made 
 
 * Example of libusb call
 
-  * [FeLiCa](https://github.com/miyako/4d-plugin-scard-v2/blob/master/SCARD-v2/test/Project/Sources/Methods/TEST_002_USB_F.4dm)
+  * [FeliCa](https://github.com/miyako/4d-plugin-scard-v2/blob/master/SCARD-v2/test/Project/Sources/Methods/TEST_002_USB_F.4dm)
   * [Type B](https://github.com/miyako/4d-plugin-scard-v2/blob/master/SCARD-v2/test/Project/Sources/Methods/TEST_002_NFC_B.4dm)
   * Sorry I have no Type A cards to test...
  
